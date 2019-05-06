@@ -505,26 +505,17 @@ function decode(mgrsString) {
     throw new TypeError('MGRSPoint coverting from nothing');
   }
 
-  //remove any spaces in MGRS String
-  mgrsString = mgrsString.replace(/ /g, '');
+  //remove any spaces in the string and convert to upper case for easier parsing
+  mgrsString = mgrsString.replace(/ /g, '').toUpperCase();
 
   const { length } = mgrsString;
 
-  let hunK = null;
-  let sb = '';
-  let testChar;
-  let i = 0;
+  const pattern = /^(?<zoneNumber>\d{1,2})(?<zoneLetter>[A-Z])(?<hunK>[A-Z]{0,2})(?<numericalLocation>\d{0,10})$/;
 
-  // get Zone number
-  while (!(/[A-Z]/).test(testChar = mgrsString.charAt(i))) {
-    if (i >= 2) {
-      throw new Error(`MGRSPoint bad conversion from: ${mgrsString}`);
-    }
-    sb += testChar;
-    i++;
-  }
+  const { zoneNumber, zoneLetter, hunK, numericalLocation } = pattern.exec(mgrsString).groups;
 
-  const zoneNumber = parseInt(sb, 10);
+  const zoneNumber = parseInt(result[0], 10);
+  const i = result.index + result[0].length;
 
   if (i === 0 || i + 3 > length) {
     // A good MGRS string has to be 4-5 digits long,
@@ -532,17 +523,12 @@ function decode(mgrsString) {
     throw new Error(`MGRSPoint bad conversion from ${mgrsString}`);
   }
 
-  const zoneLetter = mgrsString.charAt(i++);
-
   // Should we check the zone letter here? Why not.
   if (zoneLetter <= 'A' || zoneLetter === 'B' || zoneLetter === 'Y' || zoneLetter >= 'Z' || zoneLetter === 'I' || zoneLetter === 'O') {
     throw new Error(`MGRSPoint zone letter ${zoneLetter} not handled: ${mgrsString}`);
   }
 
-  hunK = mgrsString.substring(i, i += 2);
-
   const set = get100kSetForZone(zoneNumber);
-
   const east100k = getEastingFromChar(hunK.charAt(0), set);
   let north100k = getNorthingFromChar(hunK.charAt(1), set);
 
