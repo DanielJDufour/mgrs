@@ -2,21 +2,26 @@ const should = require('chai').should(); // eslint-disable-line no-unused-vars
 const mgrs = require('../dist/mgrs');
 const { readFileSync } = require('fs');
 
-describe('Consistency with GEOTRANS', () => {
-  const fileText = readFileSync('./test/testing-data.csv', 'utf8');
-  const lines = fileText.split('\n').filter(Boolean);
-  lines.forEach(line => {
-    const [ mgrsString, expectedLatitude, expectedLongitude ] = line.split('\t');
-    const [ actualLongitude, actualLatitude ] = mgrs.toPoint(mgrsString);
-    try {
-      actualLatitude.should.equal(expectedLatitude);
-      actualLongitude.should.equal(expectedLongitude);
-    } catch (error) {
-      console.error('mgrsString:', mgrsString);
-      throw error;
-    }
+if (process.env.CHECK_GEOTRANS) {
+  describe('Consistency with GEOTRANS', () => {
+    it('Should be consistent with GEOTRANS', () => {
+      const fileText = readFileSync('./test/testing-data.csv', 'utf8');
+      const lines = fileText.split('\n').filter(Boolean);
+      lines.forEach(line => {
+        const [ mgrsString, expectedLatitude, expectedLongitude ] = line.split('\t');
+        const [ actualLongitude, actualLatitude ] = mgrs.toPoint(mgrsString);
+        try {
+          actualLatitude.should.equal(expectedLatitude);
+          actualLongitude.should.equal(expectedLongitude);
+        } catch (error) {
+          console.error('mgrsString:', mgrsString);
+          throw error;
+        }
+      });
+    });
   });
-});
+}
+
 
 describe('First MGRS set', () => {
   const mgrsStr = '33UXP04';
