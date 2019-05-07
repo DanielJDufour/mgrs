@@ -2,7 +2,10 @@ const { readFileSync, writeFileSync } = require('fs');
 const fetch = require('node-fetch');
 
 async function process() {
-  // from geotrans3.7/SpreadsheetTester/TestFiles/outputs/output/mgrsToGeo_WE.txt
+  // originally downloaded from
+  // http://earth-info.nga.mil/GandG/update/index.php?action=home
+  // and found at
+  // geotrans3.7/SpreadsheetTester/TestFiles/outputs/output/mgrsToGeo_WE.txt
   const url = 'https://s3.amazonaws.com/mgrs.io/mgrsToGeo_WE.txt';
 
   let text = await fetch(url).then(response => response.text());
@@ -27,7 +30,7 @@ async function process() {
   const csv = testCases.map(({mgrs, latitude, longitude}) => `${mgrs}\t${latitude}\t${longitude}`).join('\n');
   writeFileSync('testing-data.csv', csv, 'utf8');
 
-  console.log("write testing-data.txt");
+  console.log("wrote testing-data.csv");
 }
 
 process();
